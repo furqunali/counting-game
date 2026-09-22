@@ -1,8 +1,14 @@
 # Counting Game
 
-A small command-line game to practice **skip-counting**. Each round shows the
-first few terms of an arithmetic sequence (random start and step) and asks you to
-continue it — score a point for every correct answer.
+A command-line game for practicing **skip-counting**, with reusable Python domain logic and automated tests.
+
+## Install
+
+Requires Python 3.11+.
+
+```bash
+python -m pip install -e ".[dev]"
+```
 
 ## Run
 
@@ -10,13 +16,20 @@ continue it — score a point for every correct answer.
 python counting_game.py
 ```
 
+## Test
+
+```bash
+pytest
+```
+
+## Package API
+
+Supported domain functionality is exported from `counting_game_core`, including session analytics and metrics.
+
 ## Example
 
-```
+```text
 Round 1: 3, 8, 13, 18, ...
 What is the next number? 23
-Correct! ✅
+Correct!
 ```
-
----
-*Part of [Furqan Ali](https://github.com/furqunali)'s portfolio — AI & Intelligent Automation / Digital Transformation.*
