@@ -20,3 +20,13 @@ def accuracy(correct: int, rounds: int) -> float:
     if correct < 0 or rounds < 0 or correct > rounds:
         raise ValueError("invalid round counters")
     return correct / rounds if rounds else 0.0
+
+def longest_correct_streak(results: Iterable[bool]) -> int:
+    """Return the longest consecutive run of correct rounds."""
+    best = current = 0
+    for result in results:
+        if not isinstance(result, bool):
+            raise TypeError("results must contain booleans")
+        current = current + 1 if result else 0
+        best = max(best, current)
+    return best
