@@ -1,12 +1,12 @@
 from .config import GameConfig
 
 class CountingSession:
-    """Small stateful service boundary for configured counting rounds."""
+    """Stateful service boundary for configured counting rounds."""
 
-    def __init__(self, config: GameConfig):
-        if not isinstance(config, GameConfig):
+    def __init__(self, config: GameConfig | None = None):
+        self.config = config or GameConfig()
+        if not isinstance(self.config, GameConfig):
             raise TypeError("config must be a GameConfig")
-        self.config = config
         self._rounds = 0
 
     @property
