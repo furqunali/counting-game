@@ -1,19 +1,20 @@
-from dataclasses import dataclass, field
-from .analytics import SessionStats
-from .validation import validate_rounds
+from .config import GameConfig
 
-@dataclass
 class CountingSession:
-    results: list[bool] = field(default_factory=list)
-    points: int = 0
+    """Small stateful service boundary for configured counting rounds."""
 
-    def record(self, correct: bool, points: int = 0) -> SessionStats:
-        self.results.append(bool(correct))
-        self.points += max(0, int(points))
-        return self.stats()
+    def __init__(self, config: GameConfig):
+        if not isinstance(config, GameConfig):
+            raise TypeError("config must be a GameConfig")
+        self.config = config
+        self._rounds = 0
 
-    def stats(self) -> SessionStats:
-        return SessionStats.from_results(self.results, self.points)
+    @property
+    def rounds_played(self) -> int:
+        return self._rounds
 
-    def can_start(self, rounds: int) -> bool:
-        return len(self.results) < validate_rounds(rounds)
+    def next_sequence(self, length: int) -> tuple[int, ...]:
+        if self._rounds >= self.config.max_rounds:
+            raise RuntimeError("maximum rounds reached")
+        self._rounds += 1
+        return self.config.sequence(length)
