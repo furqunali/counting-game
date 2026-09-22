@@ -1,3 +1,4 @@
+from .analytics import SessionStats
 from .config import GameConfig
 
 class CountingSession:
@@ -15,10 +16,17 @@ class CountingSession:
     def rounds_played(self) -> int:
         return self._rounds
 
+    @property
+    def stats(self) -> SessionStats:
+        return SessionStats.from_results(self._results, self._points)
+
+    def can_start(self) -> bool:
+        return self._rounds < self.config.max_rounds
+
     def record(self, correct: bool, points: int = 0) -> None:
         if not isinstance(correct, bool):
             raise TypeError("correct must be a boolean")
-        if self._rounds >= self.config.max_rounds:
+        if not self.can_start():
             raise RuntimeError("maximum rounds reached")
         if isinstance(points, bool) or not isinstance(points, int):
             raise TypeError("points must be an integer")
@@ -27,6 +35,7 @@ class CountingSession:
         self._rounds += 1
 
     def next_sequence(self, length: int) -> tuple[int, ...]:
-        if self._rounds >= self.config.max_rounds:
+        if not self.can_start():
             raise RuntimeError("maximum rounds reached")
+        self._rounds += 1
         return self.config.sequence(length)
