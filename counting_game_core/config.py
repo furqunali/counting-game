@@ -18,6 +18,10 @@ class GameConfig:
             raise ValueError("max_rounds must be positive")
         if self.step == 0:
             raise ValueError("step must not be zero")
+        if self.step > 0 and self.start > self.end:
+            raise ValueError("positive step requires start <= end")
+        if self.step < 0 and self.start < self.end:
+            raise ValueError("negative step requires start >= end")
 
     def sequence(self, length: int) -> tuple[int, ...]:
         """Generate the configured counting sequence for a round."""
@@ -25,4 +29,7 @@ class GameConfig:
             raise TypeError("length must be an integer")
         if length < 1:
             raise ValueError("length must be positive")
-        return tuple(self.start + index * self.step for index in range(length))
+        values = tuple(self.start + index * self.step for index in range(length))
+        if any(value < min(self.start, self.end) or value > max(self.start, self.end) for value in values):
+            raise ValueError("sequence exceeds configured bounds")
+        return values
