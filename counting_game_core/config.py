@@ -23,6 +23,12 @@ class GameConfig:
         if self.step < 0 and self.start < self.end:
             raise ValueError("negative step requires start >= end")
 
+    def contains(self, value: int) -> bool:
+        """Return whether an integer belongs to the configured inclusive range."""
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise TypeError("value must be an integer")
+        return min(self.start, self.end) <= value <= max(self.start, self.end)
+
     def sequence(self, length: int) -> tuple[int, ...]:
         """Generate the configured counting sequence for a round."""
         if isinstance(length, bool) or not isinstance(length, int):
