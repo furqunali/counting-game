@@ -10,10 +10,18 @@ class CountingSession:
         self.config = GameConfig() if config is None else config
         if not isinstance(self.config, GameConfig):
             raise TypeError("config must be a GameConfig")
+        if len(self.results) > self.config.max_rounds:
+            raise ValueError("results exceed configured maximum rounds")
+        if any(not isinstance(result, bool) for result in self.results):
+            raise TypeError("results must contain booleans")
 
     @property
     def rounds_played(self) -> int:
         return len(self.results)
+
+    @property
+    def rounds_remaining(self) -> int:
+        return max(0, self.config.max_rounds - self.rounds_played)
 
     def record(self, correct: bool, points: int = 0) -> SessionStats:
         if not isinstance(correct, bool):
@@ -32,6 +40,8 @@ class CountingSession:
             return self.rounds_played < self.config.max_rounds
         if isinstance(next_round, bool) or not isinstance(next_round, int):
             raise TypeError("next_round must be an integer")
+        if next_round < 1:
+            raise ValueError("next_round must be positive")
         return self.rounds_played + next_round <= self.config.max_rounds
 
     def next_sequence(self, length: int) -> tuple[int, ...]:
