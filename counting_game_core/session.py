@@ -23,6 +23,11 @@ class CountingSession:
     def rounds_remaining(self) -> int:
         return max(0, self.config.max_rounds - self.rounds_played)
 
+    @property
+    def is_complete(self) -> bool:
+        """Return whether the configured round limit has been reached."""
+        return self.rounds_played >= self.config.max_rounds
+
     def record(self, correct: bool, points: int = 0) -> SessionStats:
         if not isinstance(correct, bool):
             raise TypeError("correct must be a boolean")
