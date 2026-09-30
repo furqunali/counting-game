@@ -14,3 +14,11 @@ def test_session_limits_rounds():
     session = CountingSession()
     session.record(True)
     assert session.can_start(2)
+
+def test_session_completion_tracks_configured_limit():
+    session = CountingSession()
+    assert not session.is_complete
+    for _ in range(session.config.max_rounds):
+        session.record(False)
+    assert session.rounds_remaining == 0
+    assert session.is_complete
