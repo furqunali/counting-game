@@ -12,6 +12,8 @@ class SessionStats:
     @classmethod
     def from_results(cls, results: Iterable[bool], points: int = 0):
         values = list(results)
+        if any(not isinstance(value, bool) for value in values):
+            raise TypeError("results must contain booleans")
         correct = sum(1 for value in values if value)
         rounds = len(values)
         return cls(rounds, correct, rounds - correct, correct / rounds if rounds else 0.0, int(points))
