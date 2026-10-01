@@ -1,10 +1,16 @@
 from .analytics import SessionStats
 from .config import GameConfig
 
+
 class CountingSession:
     """Stateful session service with configured round tracking."""
 
-    def __init__(self, results: list[bool] | None = None, points: int = 0, config: GameConfig | None = None):
+    def __init__(
+        self,
+        results: list[bool] | None = None,
+        points: int = 0,
+        config: GameConfig | None = None,
+    ):
         self.results = list(results or [])
         self.points = max(0, int(points))
         self.config = GameConfig() if config is None else config
@@ -55,3 +61,38 @@ class CountingSession:
         sequence = self.config.sequence(length)
         self.results.append(False)
         return sequence
+
+    def to_dict(self) -> dict[str, object]:
+        """Return a JSON-compatible snapshot of the current session."""
+        return {
+            "results": list(self.results),
+            "points": self.points,
+            "config": {
+                "start": self.config.start,
+                "end": self.config.end,
+                "max_rounds": self.config.max_rounds,
+                "step": self.config.step,
+            },
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, object]) -> "CountingSession":
+        """Restore a session from a snapshot produced by to_dict."""
+        if not isinstance(data, dict):
+            raise TypeError("data must be a dictionary")
+        config_data = data.get("config")
+        results = data.get("results")
+        if not isinstance(config_data, dict):
+            raise TypeError("config must be a dictionary")
+        if not isinstance(results, list):
+            raise TypeError("results must be a list")
+        try:
+            config = GameConfig(
+                start=config_data["start"],
+                end=config_data["end"],
+                max_rounds=config_data["max_rounds"],
+                step=config_data["step"],
+            )
+        except KeyError as exc:
+            raise ValueError(f"missing config field: {exc.args[0]}") from exc
+        return cls(results=results, points=data.get("points", 0), config=config)
